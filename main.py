@@ -10,12 +10,7 @@ import numpy as np
 # screem = pygame.dispay
 
 ACTIONS = np.array(['N', 'E', 'S', 'W'])
-# ACTION_PROBS = {
-#     ACTIONS[0]: [0.0, 0.7, 0.1, 0.1, 0.1],
-#     ACTIONS[1]: [0.0, 0.1, 0.7, 0.1, 0.1],
-#     ACTIONS[2]: [0.0, 0.1, 0.1, 0.7, 0.1],
-#     ACTIONS[3]: [0.0, 0.1, 0.1, 0.1, 0.7]
-# }
+
 
 
 class Cell:
