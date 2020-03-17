@@ -213,17 +213,6 @@ def set_random_policy(maze):
 
 
 
-# def get_maze_policy(maze):
-
-#     p = np.zeros((maze.shape[0], maze.shape[1]))    
-    
-#     for i in range(maze.shape[0]):
-#         for j in range(maze.shape[1]):
-#             a = maze[i][j].get_action()
-#             p[i][j] = ACTIONS_INDEX[a]
-#     return p
-
-
 def policy_evaluation(maze, policy ,discount_factor = 0.7, epsilon = 0.0001):
     value = np.zeros((maze.shape[0], maze.shape[1]), dtype = np.float64)
 
@@ -241,15 +230,6 @@ def policy_evaluation(maze, policy ,discount_factor = 0.7, epsilon = 0.0001):
                             continue
                         else:
                             bellman += reward(maze[next_i][next_j]) + discount_factor * value[next_i][next_j]
-
-
-                # for action in ACTIONS:
-                #     next_i, next_j = next_position(maze[i][j], action, maze)
-                #     if next_i == 'x' and next_j == 'x':
-                #         continue
-                #     else:
-                #         bellman += reward(maze[next_i][next_j]) + discount_factor * value[next_i][next_j]
-                
                 
                 delta = max(delta, float(abs(bellman - value[i][j])))
                 # print('delta', delta)
@@ -267,7 +247,7 @@ def policy_improvement(maze, discount_factor = 0.7, epsilon = 0.0001):
     
 
     policy, maze = set_random_policy(maze)
-    
+    iteration = 0
     while True:
         
         value = policy_evaluation(maze, policy)
@@ -303,52 +283,17 @@ def policy_improvement(maze, discount_factor = 0.7, epsilon = 0.0001):
                 policy[i][j] = ACTIONS_INDEX[best_action]
                 maze[i][j].set_action(best_action)
         
+        iteration += 1
+
         if is_stable:
-            return policy, value
+            return policy, value, iteration
 
-
-
-# def policy_improvement(maze, epsilon = 0.001, discount_factor = 0.5):
-    
-
-    
-#     while True:
-        
-#         value = policy_evaluation(maze)
-#         is_stable = True
-#         for state in maze:
-#             for x in range(len(state)):
-
-#                 action_values = {'N': 0, 'E': 0, 'S': 0, 'W':0}
-#                 i, j = state[x].get_col_row()
-
-#                 for action in ACTIONS:
-#                     next_i, next_j = next_position(maze[i][j], action, maze)
-#                     if next_i == 'x' and next_j == 'x':
-#                         continue
-#                     action_values[action] = reward(maze[next_i][next_j]) + discount_factor * value[next_i][next_j]
                 
-#                 best_action_value = max(action_values.items(), key=operator.itemgetter(1))
-
-#                 chosen_action = maze[i][j].get_action()
-
-#                 best_action = best_action_value[0]
-
-#                 if(chosen_action != best_action):
-#                     is_stable = False
-                
-#                 maze[i][j].set_action(best_action)
-        
-#         if is_stable:
-#             return maze, value
-                
-
-
 
 def value_itertation(maze, epsilon = 0.0001, discount_factor = 0.9):
     
     next_state_values = np.zeros((maze.shape[0], maze.shape[1]))
-    iteration = 1
+    iteration = 0
     while True:
         delta = 0
         for state in maze:
@@ -372,11 +317,11 @@ def value_itertation(maze, epsilon = 0.0001, discount_factor = 0.9):
                 # print('bestAct',i,j , best_action)
                 maze[i][j].set_action(best_action)
              
-
+        iteration += 1
         if delta < epsilon:
             break
 
-    return maze, next_state_values
+    return maze, next_state_values, iteration
 
 
 def valid_move(state):
@@ -437,7 +382,7 @@ def q_learnig(maze, discount_factor= 0.6, no_episode = 50, epsilon = 1):
             for a in valid_move(maze[next_i][next_j]):
                 next_reward.append(Q_TABLE[(next_i, next_j)][a])
             print('reward',reward(maze[current_state[0]][current_state[1]]) , current_state)
-            Q_TABLE[(current_state[0], current_state[1])][action]+= reward(maze[next_i][next_j]) + discount_factor*max(next_reward)
+            Q_TABLE[(current_state[0], current_state[1])][action] = reward(maze[next_i][next_j]) + discount_factor*max(next_reward)
             # print('new_q', new_q)
             current_state = (next_i, next_j)
             # epsilon -= (epsilon* 0.001)
@@ -529,17 +474,24 @@ def main():
 
     # print('--------------------------------------')
 
-    # policy, value = policy_improvement(maze)
-    # print('value', value)
-    # print('policy', policy)
+    policy, value, iteration = value_itertation(maze)
+    print('value', value)
+    print('policy', policy)
+    print('iter', iteration)
+
+    print('-------------------------------------------------------------------------------')
+    policy, value, iteration = policy_improvement(maze)
+    print('value', value)
+    print('policy', policy)
+    print('iter', iteration)
 
 
     print('-------------------------------------------------------------------------------')
 
-    qpolicy = q_learnig(maze)
-    print(qpolicy)
-    # print(valid_move(maze[0][0]))
-    print(maze_goal(maze))
+    # qpolicy = q_learnig(maze)
+    # print(qpolicy)
+    # # print(valid_move(maze[0][0]))
+    # print(maze_goal(maze))
     # for action in ACTIONS:
     #     next_i, next_j = next_position(maze[0][3], action, maze)
     #     print('next_i, next_j', next_i, next_j)
